@@ -112,7 +112,7 @@ if (len(sys.argv) > 1):
 #Model name.  
 ############
 Model = "T"
-ModNum = 4
+ModNum = 6
 
 if len(sys.argv) == 1:
     ModIt = "Base"
@@ -174,6 +174,11 @@ for dirpath, dirnames, files in os.walk(checkpointPath):
 
 # Set physical constants and parameters, including the Rayleigh number (*RA*). 
 
+# In[723]:
+
+(2890 + 22.578125)/128.
+
+
 # In[645]:
 
 ###########
@@ -204,7 +209,7 @@ dp = edict({'LS':2890.*1e3,
            'E':240000., 
            'R':8.314,
            'V':6.34*(10**-7),
-           'StALS': 28.*1e3})
+           'StALS': 22.5*1e3})
 
 #non-dimensional parameter dictionary
 #One draw back of a dictionary structure, is that variables cannot link to other variables
@@ -320,7 +325,7 @@ dim = 2          # number of spatial dimensions
 
 #MESH STUFF
 
-RES = 64
+RES = 128
 
 #######################To be replaced soon
 #Physical parameters that can be defined with STDIN,
@@ -351,7 +356,7 @@ periodic = [False, False]
 elementType = "Q1/dQ0"
 #elementType ="Q2/DPC1"
 
-refineMesh = True
+refineMesh = False
 
 
 #System/Solver stuff
