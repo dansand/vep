@@ -369,10 +369,10 @@ ppc = 25
 swarm_update = 10
 swarm_repop = 100
 files_output = 1e6
-gldbs_output = 2
+gldbs_output = 25
 images_output = 1e6
-checkpoint_every = 2
-metric_output = 2
+checkpoint_every = 25
+metric_output = 25
 sticky_air_temp = 10
 
 comm.Barrier() #Barrier here so not procs run the check in the next cell too early 
