@@ -350,12 +350,12 @@ ppc = 25
 ###########
 
 swarm_update = 10
-swarm_repop = 10
+swarm_repop = 25
 files_output = 1e6
-gldbs_output = 10
+gldbs_output = 25
 images_output = 1e6
 checkpoint_every = 25
-metric_output = 10
+metric_output = 25
 sticky_air_temp = 10
 
 comm.Barrier() #Barrier here so not procs run the check in the next cell too early 
@@ -583,51 +583,6 @@ for index, coord in enumerate(mesh.data):
 testField    = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 testField.data[:] = 0.
 
-
-# if not checkpointLoad:
-#     import shapely
-#     from shapely.geometry.point import Point
-#     from shapely.geometry import Polygon
-# 
-#     #Setup slab perturbation params (mostly dimensionles / model params here)
-#     phi = 90. - theta
-#     RocM = (Roc/dp.LS)*1e3
-#     CrustM = MANTLETOCRUST
-#     slabdepth = lithdepthfunc(agefunc(off, off, vel), dp.k)
-#     slabdepthM = (lithdepthfunc(agefunc(off, off, vel), dp.k)/dp.LS)*1e3
-#     Org = (0.+off, 1.-RocM)
-# 
-# 
-#     #Shapely stuff
-# 
-#     Oc1 = Point(Org).buffer(RocM)
-#     Ic1 = Point(Org).buffer(RocM - slabdepthM)
-#     Cc1 = Point(Org).buffer(RocM - CrustM)
-#     dx = (RocM)/(np.math.tan((np.math.pi/180.)*phi))
-#     if off > 1: 
-#         ptx = off + dx
-#     else:
-#         ptx = off - dx
-#     #ptx = -1*(Rc)/(np.math.tan((np.math.pi/180.)*phi))
-#     coords = ((0.+off, 1), (0.+off, 1.-RocM), (ptx, 1.))
-#     Tri1 = Polygon(coords)
-#     slabshape = Oc1.difference(Ic1).intersection(Tri1) #there's an extra 25 km buffer here, 
-#     slabshape2 = Oc1.difference(Ic1).buffer(15.e3/dp.LS).intersection(Tri1) #there's an extra .. km buffer here, 
-#     #to help the temperature field map better
-#     crustshape = Oc1.difference(Cc1).intersection(Tri1)
-#     
-#     #Assign temperatures in the perturbation region
-#     for index, coord in enumerate(mesh.data):
-#         pt = Point(coord)
-#         if pt.within(slabshape2):
-#             #print("true")
-#             sd = (pt.distance(Oc1.boundary)*dp.LS)/1e3
-#             if sd < (lithdepthfunc(agefunc(off, off, vel = vel, dom = (MINX,MAXX)), dp.k))*fudge:
-#                 t = tempfunc(agefunc(off, off, vel = vel, dom = (MINX,MAXX)), dp.k, sd, t0=0.8)
-#                 temperatureField.data[index] = t
-#                 testField.data[index] = 1.
-#             else: 
-#                 temperatureField.data[index] = 0.8
 
 # In[80]:
 
@@ -1060,22 +1015,6 @@ if not checkpointLoad:
             #print("True")
             materialVariable.data[particleID] =  crustIndex
 
-
-# materialVariable.data[:] = mantleIndex
-# 
-# def in_shape(arr, shape):
-#     """
-#     arr: coordinates of point
-#     This function determines whether a point is inside or outside a shape /
-#     """
-#     pt = Point(arr[0], arr[1])
-#     return shape.contains(pt)
-#     
-#     
-#     
-# for particleID in range(gSwarm.particleCoordinates.data.shape[0]):
-#     if gSwarm.particleCoordinates.data[particleID][1] > (1.0 - CrustM) or in_shape(gSwarm.particleCoordinates.data[particleID], crustshape):
-#         materialVariable.data[particleID] =  crustIndex
 
 # In[84]:
 
