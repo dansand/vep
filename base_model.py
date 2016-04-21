@@ -585,44 +585,46 @@ for index, coord in enumerate(mesh.data):
 
 # In[739]:
 
-def inCircleFnGenerator(centre, radius):
-    coord = fn.input()
-    offsetFn = coord - centre
-    return fn.math.dot( offsetFn, offsetFn ) < radius**2
+if not checkpointLoad:
 
-#Setup slab perturbation params (mostly dimensionles / model params here)
-phi = 90. - theta
-RocM = (Roc/dp.LS)*1e3
-CrustM = MANTLETOCRUST
-slabdepth = lithdepthfunc(agefunc(off, off, vel), dp.k)
-slabdepthM = (lithdepthfunc(agefunc(off, off, vel), dp.k)/dp.LS)*1e3
-Org = (0.+off, 1.-RocM)
-#Use three circles to define our slab and crust perturbation,  
-Oc = inCircleFnGenerator(Org , RocM)
-Oc2 = inCircleFnGenerator(Org , RocM + (20e3/dp.LS)) #a slightly larger circle helps smother the interpolation
-Ic = inCircleFnGenerator(Org , RocM - slabdepthM)
-Cc = inCircleFnGenerator(Org , RocM - CrustM)
+    def inCircleFnGenerator(centre, radius):
+        coord = fn.input()
+        offsetFn = coord - centre
+        return fn.math.dot( offsetFn, offsetFn ) < radius**2
 
-#We'll also create a triangle which will truncate the circles defining the slab...
-if off > 1: 
-    ptx = off + dx
-else:
-    ptx = off - dx
-    
-coords = ((0.+off, 1), (0.+off, 1.-RocM), (ptx, 1.))
-Tri = fn.shape.Polygon(np.array(coords))
+    #Setup slab perturbation params (mostly dimensionles / model params here)
+    phi = 90. - theta
+    RocM = (Roc/dp.LS)*1e3
+    CrustM = MANTLETOCRUST
+    slabdepth = lithdepthfunc(agefunc(off, off, vel), dp.k)
+    slabdepthM = (lithdepthfunc(agefunc(off, off, vel), dp.k)/dp.LS)*1e3
+    Org = (0.+off, 1.-RocM)
+    #Use three circles to define our slab and crust perturbation,  
+    Oc = inCircleFnGenerator(Org , RocM)
+    Oc2 = inCircleFnGenerator(Org , RocM + (20e3/dp.LS)) #a slightly larger circle helps smother the interpolation
+    Ic = inCircleFnGenerator(Org , RocM - slabdepthM)
+    Cc = inCircleFnGenerator(Org , RocM - CrustM)
 
-#Assign temperatures in the perturbation region
-for index, coord in enumerate(mesh.data):
-    if Oc2.evaluate(tuple(coord)) and Tri.evaluate(tuple(coord)) and not Ic.evaluate(tuple(coord)): #in inner circle, not in outer circle
-        #print("true")
-        #sd = (pt.distance(Oc.boundary)*dp.LS)/1e3
-        sd = ((RocM - math.sqrt((coord[0] - Org[0])**2 + (coord[1] - Org[1])**2))*dp.LS)/1e3 #distance from slab edge in Km
-        if sd < (lithdepthfunc(agefunc(off, off, vel = vel, dom = (MINX,MAXX)), dp.k))*fudge:
-            t = tempfunc(agefunc(off, off, vel = vel, dom = (MINX,MAXX)), dp.k, sd, t0=0.8)
-            temperatureField.data[index] = t
-        else: 
-            temperatureField.data[index] = 0.8
+    #We'll also create a triangle which will truncate the circles defining the slab...
+    if off > 1: 
+        ptx = off + dx
+    else:
+        ptx = off - dx
+
+    coords = ((0.+off, 1), (0.+off, 1.-RocM), (ptx, 1.))
+    Tri = fn.shape.Polygon(np.array(coords))
+
+    #Assign temperatures in the perturbation region
+    for index, coord in enumerate(mesh.data):
+        if Oc2.evaluate(tuple(coord)) and Tri.evaluate(tuple(coord)) and not Ic.evaluate(tuple(coord)): #in inner circle, not in outer circle
+            #print("true")
+            #sd = (pt.distance(Oc.boundary)*dp.LS)/1e3
+            sd = ((RocM - math.sqrt((coord[0] - Org[0])**2 + (coord[1] - Org[1])**2))*dp.LS)/1e3 #distance from slab edge in Km
+            if sd < (lithdepthfunc(agefunc(off, off, vel = vel, dom = (MINX,MAXX)), dp.k))*fudge:
+                t = tempfunc(agefunc(off, off, vel = vel, dom = (MINX,MAXX)), dp.k, sd, t0=0.8)
+                temperatureField.data[index] = t
+            else: 
+                temperatureField.data[index] = 0.8
 
 
 # In[740]:
