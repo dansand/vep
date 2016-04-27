@@ -7,13 +7,13 @@
 
 # Load python functions needed for underworld. Some additional python functions from os, math and numpy used later on.
 
-# In[211]:
+# In[35]:
 
 #!pip install natsort
 #!pip install networkx
 
 
-# In[212]:
+# In[36]:
 
 import networkx as nx
 import underworld as uw
@@ -85,7 +85,7 @@ rank = comm.Get_rank()
 #     myr = secs/((3600.*24*365)*1e6)
 #     return myr
 
-# In[213]:
+# In[37]:
 
 #Display working directory info if in nb mode
 if (len(sys.argv) > 1):
@@ -93,13 +93,13 @@ if (len(sys.argv) > 1):
         get_ipython().system(u'pwd && ls')
 
 
-# In[214]:
+# In[38]:
 
 ############
 #Model name.  
 ############
 Model = "T"
-ModNum = 14
+ModNum = 4
 
 if len(sys.argv) == 1:
     ModIt = "Base"
@@ -109,7 +109,7 @@ else:
     ModIt = str(sys.argv[1])
 
 
-# In[215]:
+# In[39]:
 
 ###########
 #Standard output directory setup
@@ -136,10 +136,10 @@ if uw.rank()==0:
     if not os.path.isdir(filePath):
         os.makedirs(filePath)
         
-comm.Barrier() #Barrier here so not procs run the check in the next cell too early 
+comm.Barrier() #Barrier here so no procs run the check in the next cell too early 
 
 
-# In[216]:
+# In[40]:
 
 ###########
 #Check if starting from checkpoint
@@ -161,12 +161,12 @@ for dirpath, dirnames, files in os.walk(checkpointPath):
 
 # Set physical constants and parameters, including the Rayleigh number (*RA*). 
 
-# In[217]:
+# In[41]:
 
 (1600)/128.
 
 
-# In[218]:
+# In[42]:
 
 ###########
 #Physical parameters
@@ -200,7 +200,7 @@ dp = edict({'LS':2890.*1e3,
 
 #non-dimensional parameter dictionary
 #One draw back of a dictionary structure, is that variables cannot link to other variables
-RAfac = 50.
+RAfac = 80.
 Stressfac =(RAfac**(2/3.))
 ndp = edict({'RA':1e6*RAfac,      
               'LS':1.,
@@ -215,14 +215,14 @@ ndp = edict({'RA':1e6*RAfac,
               'RD':1.,
               'cohesion':1577.*RAfac,
               'cohesion_reduce':10.,
-              'fc':0.1, 
+              'fc':0.15, 
               'low_visc':1e-4,
               'up_visc':1e5,
               'random_temp': 0.05})
 
 
 #A few parameters defining lengths scales, affects materal transistions etc.
-MANTLETOCRUST = (27.*1e3)/dp.LS #Crust depth
+MANTLETOCRUST = (24.*1e3)/dp.LS #Crust depth
 CRUSTTOMANTLE = (900.*1e3)/dp.LS 
 LITHTOMANTLE = (900.*1e3)/dp.LS 
 MANTLETOLITH = (200.*1e3)/dp.LS 
@@ -271,17 +271,17 @@ else:
     ndp.cohesion = float(sys.argv[1])*newvisc
 
 
-# In[219]:
+# In[43]:
 
 ###########
 #Boundary layer / slab paramaters
 ###########
 
-subzone = -0.3
+subzone = -0.4
 mor = 0.5
-vel = 20e3
-agelimit = False
-thermallimit = False
+vel = 50e3
+agelimit = 70.
+thermallimit = 0.8
 
 #Slab perturbation paramaters
 Roc = 450.
@@ -289,17 +289,12 @@ Crust = 35.
 theta = 89.
 
 
-# In[220]:
+# In[44]:
 
 ndp.TS
 
 
-# In[221]:
-
-#(64*3)/2/2
-
-
-# In[222]:
+# In[45]:
 
 ###########
 #Model setup parameters
@@ -307,9 +302,9 @@ ndp.TS
 
 stickyAir = False
 
-MINX = -1.
+MINX = -0.75
 MINY = 0.
-MAXX = 1.0
+MAXX = 0.75
 
 #MAXY = 1.035
 MAXY = 1.
@@ -331,7 +326,7 @@ RES = 128
 if MINX == 0.:
     Xres = RES
 else:
-    Xres = 2*RES
+    Xres = 192
 
 if stickyAir:
     Yres = RES
@@ -355,7 +350,7 @@ PIC_integration=True
 ppc = 25
 
 
-# In[223]:
+# In[46]:
 
 ###########
 #Model Runtime parameters
@@ -364,7 +359,7 @@ ppc = 25
 swarm_update = 10
 swarm_repop = 25
 files_output = 1e6
-gldbs_output = 25
+gldbs_output = 5
 images_output = 1e6
 checkpoint_every = 25
 metric_output = 25
@@ -377,7 +372,7 @@ assert metric_output <= checkpoint_every, 'Checkpointing should run less or as o
 #assert metric_output >= sticky_air_temp, 'Sticky air temp should be updated more frequently that metrics'
 
 
-# In[224]:
+# In[47]:
 
 ###########
 #Model output parameters
@@ -390,7 +385,7 @@ loadTemp = True
     
 
 
-# In[225]:
+# In[48]:
 
 mesh = uw.mesh.FeMesh_Cartesian( elementType = elementType,
                                  elementRes  = (Xres, Yres), 
@@ -405,7 +400,7 @@ temperatureField    = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 temperatureDotField = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 
 
-# In[226]:
+# In[49]:
 
 Xres, MINX, periodic, elementType
 
@@ -416,7 +411,7 @@ Xres, MINX, periodic, elementType
 
 # ## Refine mesh
 
-# In[227]:
+# In[50]:
 
 #X-Axis
 
@@ -438,7 +433,7 @@ if refineMesh:
     sp.deform_1d(deform_lengths, mesh,axis = 'x',norm = 'Min', constraints = [])
 
 
-# In[228]:
+# In[51]:
 
 axis = 1
 orgs = np.linspace(mesh.minCoord[axis], mesh.maxCoord[axis], mesh.elementRes[axis] + 1)
@@ -449,7 +444,7 @@ value_to_constrain = 1.
 yconst = [(sp.find_closest(orgs, value_to_constrain), np.array([1.,0]))]
 
 
-# In[229]:
+# In[52]:
 
 #Y-Axis
 if refineMesh:
@@ -472,7 +467,7 @@ if refineMesh:
 
 # # ICs and BCs
 
-# In[230]:
+# In[53]:
 
 # Initialise data.. Note that we are also setting boundary conditions here
 velocityField.data[:] = [0.,0.]
@@ -483,12 +478,12 @@ temperatureDotField.data[:] = 0.
 
 # ## Temp ICs
 
-# In[231]:
+# In[54]:
 
 dp.LS
 
 
-# In[232]:
+# In[55]:
 
 #boundary_layer2d.agefunc(0.0, off, vel = vel, dom = (MINX,MAXX))
 
@@ -499,7 +494,12 @@ lith= boundary_layer2d.LithosphereTemps(mesh, temperatureField, 2890e3, subzone,
 
 
 
-# In[233]:
+# In[56]:
+
+#lith.agefunc?
+
+
+# In[57]:
 
 fudge = 1.
 
@@ -526,7 +526,7 @@ for index, coord in enumerate(mesh.data):
             temperatureField.data[index] = t  
 
 
-# In[234]:
+# In[58]:
 
 lith.tempfunc(50., 150e3)
 dp.LS
@@ -534,13 +534,13 @@ dp.LS
 
 # ## Slab perturbation
 
-# In[235]:
+# In[59]:
 
 #testField    = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 #testField.data[:] = 0.
 
 
-# In[236]:
+# In[60]:
 
 def inCircleFnGenerator(centre, radius):
     coord = fn.input()
@@ -578,7 +578,7 @@ Tri = fn.shape.Polygon(np.array(coords))
 
 
 
-# In[237]:
+# In[65]:
 
 #Assign temperatures in the perturbation region
 #sds = []
@@ -588,7 +588,7 @@ else:
     age = lith.agefunc(subzone - 0.001)
     
 if agelimit:
-        age = min(agelim, age)
+        age = min(agelimit, age)
 
 for index, coord in enumerate(mesh.data):
     #if Oc.evaluate(tuple(coord)) and Tri.evaluate(tuple(coord)) and not Ic.evaluate(tuple(coord)): #in inner circle, not in outer circle
@@ -603,9 +603,11 @@ for index, coord in enumerate(mesh.data):
         else:
             t = lith.tempfunc(age, sd)
             temperatureField.data[index] = t
+    if Gc.evaluate(tuple(coord)) and Tri.evaluate(tuple(coord)) and not Oc.evaluate(tuple(coord)):
+        temperatureField.data[index] =  lith.tint
 
 
-# In[238]:
+# In[66]:
 
 figTemp = glucifer.Figure()
 figTemp.append( glucifer.objects.Surface(mesh, temperatureField))
@@ -1314,7 +1316,7 @@ viscdata = mantleviscosityFn.evaluate(mesh)
 advDiff = uw.systems.AdvectionDiffusion( phiField       = temperatureField, 
                                          phiDotField    = temperatureDotField, 
                                          velocityField  = velocityField,
-                                         fn_sourceTerm    = 20.0,
+                                         fn_sourceTerm    = 0.0,
                                          fn_diffusivity = 1.0, 
                                          conditions     = [dirichTempBC,] )
 
