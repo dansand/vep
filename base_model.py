@@ -99,7 +99,7 @@ if (len(sys.argv) > 1):
 #Model name.  
 ############
 Model = "T"
-ModNum = 4
+ModNum = 5
 
 if len(sys.argv) == 1:
     ModIt = "Base"
@@ -215,7 +215,7 @@ ndp = edict({'RA':1e6*RAfac,
               'RD':1.,
               'cohesion':1577.*RAfac,
               'cohesion_reduce':10.,
-              'fc':0.15, 
+              'fc':0.2, 
               'low_visc':1e-4,
               'up_visc':1e5,
               'random_temp': 0.05})
@@ -341,7 +341,7 @@ periodic = [True, False]
 elementType = "Q1/dQ0"
 #elementType ="Q2/DPC1"
 
-refineMesh = False
+refineMesh = True
 
 
 #System/Solver stuff
@@ -423,7 +423,7 @@ if refineMesh:
 
     deform_lengths = edge_rest_lengths.copy()
     min_point =  (abs(mesh.maxCoord[axis]) - abs(mesh.minCoord[axis]))/2.
-    el_reduction = 0.5001
+    el_reduction = 1.00
     dx = mesh.maxCoord[axis] - min_point
 
     deform_lengths = deform_lengths -                                     ((1.-el_reduction) *deform_lengths[0]) +                                     abs((origcoords[1:] - min_point))*((0.5*deform_lengths[0])/dx)
@@ -455,7 +455,7 @@ if refineMesh:
 
     deform_lengths = edge_rest_lengths.copy()
     min_point =  (mesh.maxCoord[axis])
-    el_reduction = 0.5001
+    el_reduction = 0.75001
     dx = mesh.maxCoord[axis]
 
     deform_lengths = deform_lengths -                                     ((1.-el_reduction)*deform_lengths[0]) +                                     abs((origcoords[1:] - min_point))*((0.5*deform_lengths[0])/dx)
