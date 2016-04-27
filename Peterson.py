@@ -1181,10 +1181,10 @@ mantleviscosityFn.evaluate(mesh).max()
 
 # In[143]:
 
-figStrainRate = glucifer.Figure()
-figStrainRate.append( glucifer.objects.Surface(mesh, plasticvisc, logScale=True))
-figStrainRate.append(glucifer.objects.VectorArrows(mesh, velocityField, scaling=0.000001))
-figStrainRate.show()
+#figStrainRate = glucifer.Figure()
+#figStrainRate.append( glucifer.objects.Surface(mesh, plasticvisc, logScale=True))
+#figStrainRate.append(glucifer.objects.VectorArrows(mesh, velocityField, scaling=0.000001))
+#figStrainRate.show()
 
 
 # Set up simulation parameters and functions
