@@ -305,7 +305,7 @@ ndp.TS
 #Model setup parameters
 ###########
 
-stickyAir = True
+stickyAir = False
 
 MINX = -1.
 MINY = 0.
