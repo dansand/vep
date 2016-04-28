@@ -215,7 +215,7 @@ ndp = edict({'RA':1e6*RAfac,
               'RD':1.,
               'cohesion':1577.*RAfac,
               'cohesion_reduce':10.,
-              'fc':0.2, 
+              'fc':0.25, 
               'low_visc':1e-4,
               'up_visc':1e5,
               'random_temp': 0.05})
@@ -279,7 +279,7 @@ else:
 
 subzone = -0.4
 mor = 0.5
-vel = 50e3
+vel = 70e3
 agelimit = 70.
 thermallimit = 0.8
 
@@ -455,7 +455,7 @@ if refineMesh:
 
     deform_lengths = edge_rest_lengths.copy()
     min_point =  (mesh.maxCoord[axis])
-    el_reduction = 0.75001
+    el_reduction = 0.6001
     dx = mesh.maxCoord[axis]
 
     deform_lengths = deform_lengths -                                     ((1.-el_reduction)*deform_lengths[0]) +                                     abs((origcoords[1:] - min_point))*((0.5*deform_lengths[0])/dx)
@@ -656,7 +656,7 @@ for index in mesh.specialSets["MaxJ_VertexSet"]:
 # that these nodes are to be considered as boundary conditions. 
 # Also note that we provide a tuple of sets.. One for the Vx, one for Vy.
 freeslipBC = uw.conditions.DirichletCondition(     variable=velocityField, 
-                                              indexSetsPerDof=(IWalls + TWalls, JWalls) )
+                                              indexSetsPerDof=(None, JWalls) )
 
 # also set dirichlet for temp field
 dirichTempBC = uw.conditions.DirichletCondition(     variable=temperatureField, 
