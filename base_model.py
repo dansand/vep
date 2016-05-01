@@ -198,7 +198,7 @@ dp = edict({'LS':2890.*1e3,
 
 #non-dimensional parameter dictionary
 #One draw back of a dictionary structure, is that variables cannot link to other variables
-RAfac = 1.
+RAfac = 4.
 Stressfac =(RAfac**(2/3.))
 ndp = edict({'RA':1e6*RAfac,      
               'LS':1.,
