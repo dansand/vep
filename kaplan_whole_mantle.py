@@ -455,11 +455,6 @@ figTemp.show()
 
 
 
-# In[168]:
-
-BWalls
-
-
 # In[169]:
 
 # send boundary condition information to underworld
