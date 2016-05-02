@@ -951,9 +951,9 @@ viscVariable.data[:] = viscosityMapFn.evaluate(gSwarm)
 
 # Mapping the viscosity function to the mesh using MeshVariable_Projection
 
-meshVisc  = uw.mesh.MeshVariable( mesh, 1 )
-projectorStrainRate = uw.utils.MeshVariable_Projection( meshVisc, viscosityMapFn, swarm=gSwarm)
-projectorStrainRate.solve()
+#meshVisc  = uw.mesh.MeshVariable( mesh, 1 )
+#projectorStrainRate = uw.utils.MeshVariable_Projection( meshVisc, viscosityMapFn, swarm=gSwarm)
+#projectorStrainRate.solve()
 
 
 
@@ -975,7 +975,7 @@ figDb.append( glucifer.objects.Mesh(mesh))
 figDb.append( glucifer.objects.VectorArrows(mesh,velocityField, arrowHead=0.2, scaling=0.00001))
 figDb.append( glucifer.objects.Surface(mesh, strainRate_2ndInvariant, logScale=True, colours='brown white blue'))
 #figDb.append( glucifer.objects.Surface(mesh, temperatureField))
-figDb.show()
+#figDb.show()
 
 
 # In[56]:
