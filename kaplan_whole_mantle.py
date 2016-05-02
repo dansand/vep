@@ -3,7 +3,7 @@
 
 # ## From Kaplan 
 
-# In[145]:
+# In[175]:
 
 import networkx as nx
 import underworld as uw
@@ -34,7 +34,7 @@ rank = comm.Get_rank()
 
 
 
-# In[146]:
+# In[176]:
 
 ############
 #Model name.  
@@ -50,7 +50,7 @@ else:
     ModIt = str(sys.argv[1])
 
 
-# In[147]:
+# In[177]:
 
 ###########
 #Standard output directory setup
@@ -80,7 +80,7 @@ if uw.rank()==0:
 comm.Barrier() #Barrier here so no procs run the check in the next cell too early 
 
 
-# In[148]:
+# In[178]:
 
 ###########
 #Check if starting from checkpoint
@@ -98,7 +98,7 @@ for dirpath, dirnames, files in os.walk(checkpointPath):
         
 
 
-# In[149]:
+# In[179]:
 
 ###########
 #Physical parameters
@@ -137,12 +137,12 @@ ndp = edict({'RA':(dp.g*dp.rho*dp.a*dp.deltaT *(dp.LS)**3)/(dp.k*dp.eta0),
             'H':0.})
 
 
-# In[150]:
+# In[180]:
 
 ndp.cohesion
 
 
-# In[151]:
+# In[181]:
 
 ETAREF = dp.rho*dp.g*dp.a*dp.deltaT*((dp.LS)**3)/(ndp.RA*dp.k) #equivalent dimensional reference viscosity
 #RC = (3300.*dp.g*(dp.LS)**3)/(ETAREF *dp.k) #Composisitional Rayleigh number for rock-air buoyancy force
@@ -155,7 +155,7 @@ COMP_RA_FACT_AIR = RCA/ndp.RA
 ndp["StA_RA"] = ndp.RA*COMP_RA_FACT_AIR
 
 
-# In[152]:
+# In[182]:
 
 #A few parameters defining lengths scales, affects materal transistions etc.
 MANTLETOCRUST = (20.*1e3)/dp.LS #Crust depth
@@ -167,7 +167,7 @@ CRUSTTOECL  = (100.*1e3)/dp.LS
 AVGTEMP = ndp.TB #Used to define lithosphere
 
 
-# In[153]:
+# In[183]:
 
 ###########
 #Boundary layer / slab paramaters
@@ -185,12 +185,12 @@ Crust = 35.
 theta = 89.
 
 
-# In[154]:
+# In[184]:
 
 #240/2./2./2./2.
 
 
-# In[155]:
+# In[185]:
 
 ###########
 #Model setup parameters
@@ -216,13 +216,13 @@ dim = 2          # number of spatial dimensions
 
 #MESH STUFF
 
-RES = 160
+RES = 128
 
 
 if MINX == 0.:
     Xres = RES
 else:
-    Xres = 256 #Hardcoding this fow now.
+    Xres = 192 #Hardcoding this fow now.
 
 
 if stickyAir:
@@ -247,7 +247,7 @@ PIC_integration=True
 ppc = 25
 
 
-# In[156]:
+# In[186]:
 
 ###########
 #Model Runtime parameters
@@ -269,7 +269,7 @@ assert metric_output <= checkpoint_every, 'Checkpointing should run less or as o
 #assert metric_output >= sticky_air_temp, 'Sticky air temp should be updated more frequently that metrics'
 
 
-# In[157]:
+# In[187]:
 
 mesh = uw.mesh.FeMesh_Cartesian( elementType = elementType,
                                  elementRes  = (Xres, Yres), 
@@ -284,7 +284,7 @@ temperatureField    = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 temperatureDotField = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 
 
-# In[158]:
+# In[188]:
 
 # Initialise data.. Note that we are also setting boundary conditions here
 velocityField.data[:] = [0.,0.]
@@ -293,7 +293,7 @@ temperatureField.data[:] = 0.
 temperatureDotField.data[:] = 0.
 
 
-# In[159]:
+# In[189]:
 
 axis = 1
 orgs = np.linspace(mesh.minCoord[axis], mesh.maxCoord[axis], mesh.elementRes[axis] + 1)
@@ -304,7 +304,7 @@ value_to_constrain = 1.
 yconst = [(sp.find_closest(orgs, value_to_constrain), np.array([1.,0]))]
 
 
-# In[160]:
+# In[190]:
 
 #Y-Axis
 if refineMesh:
@@ -325,17 +325,17 @@ if refineMesh:
     sp.deform_1d(deform_lengths, mesh,axis = 'y',norm = 'Min', constraints = yconst)
 
 
-# In[161]:
+# In[191]:
 
 subzone
 
 
-# In[162]:
+# In[192]:
 
 lith= boundary_layer2d.LithosphereTemps(mesh, temperatureField, dp.LS, subzone , mor, tint=ndp.TB, tsurf=ndp.TS, vel= 10e3, diffs = 1e-6)
 
 
-# In[174]:
+# In[193]:
 
 #import matplotlib.pyplot as pyplot
 #%matplotlib inline
@@ -344,7 +344,7 @@ lith= boundary_layer2d.LithosphereTemps(mesh, temperatureField, dp.LS, subzone ,
 #pyplot.plot(xs, ages)
 
 
-# In[164]:
+# In[194]:
 
 fudge = 1.
 
@@ -374,7 +374,7 @@ for index, coord in enumerate(mesh.data):
             temperatureField.data[index] = t  
 
 
-# In[165]:
+# In[195]:
 
 def inCircleFnGenerator(centre, radius):
     coord = fn.input()
@@ -411,7 +411,7 @@ coords = ((0.+subzone, 1), (0.+subzone, 1.-RocM), (ptx, 1.))
 Tri = fn.shape.Polygon(np.array(coords))
 
 
-# In[166]:
+# In[196]:
 
 #Assign temperatures in the perturbation region
 #sds = []
@@ -441,7 +441,7 @@ for index, coord in enumerate(mesh.data):
         temperatureField.data[index] =  lith.tint
 
 
-# In[167]:
+# In[197]:
 
 figTemp = glucifer.Figure()
 figTemp.append( glucifer.objects.Surface(mesh, temperatureField, discrete=True))
@@ -455,7 +455,7 @@ figTemp.show()
 
 
 
-# In[169]:
+# In[198]:
 
 # send boundary condition information to underworld
 IWalls = mesh.specialSets["MinI_VertexSet"] + mesh.specialSets["MaxI_VertexSet"]
@@ -464,20 +464,16 @@ TWalls = mesh.specialSets["MaxJ_VertexSet"]
 BWalls = mesh.specialSets["MinJ_VertexSet"]
 
 
-# In[171]:
+# In[199]:
 
-halfNum = (mesh.elementsGlobal/2)
-halfNum
-
-
-# In[172]:
-
-stationaryNode = uw.mesh.FeMesh_IndexSet(mesh, 1, halfNum + 1)
-stationaryNode.add(halfNum)
-stationaryNode
+#Statiuonary node attempt for periodic BCs
+#halfNum = (mesh.elementsGlobal/2)
+#halfNum
+#stationaryNode = uw.mesh.FeMesh_IndexSet(mesh, 2, halfNum + 1)
+#stationaryNode.add(halfNum)
 
 
-# In[173]:
+# In[201]:
 
 #Set Dirichlet Temp conditions
 
@@ -492,7 +488,7 @@ for index in mesh.specialSets["MaxJ_VertexSet"]:
 # that these nodes are to be considered as boundary conditions. 
 # Also note that we provide a tuple of sets.. One for the Vx, one for Vy.
 freeslipBC = uw.conditions.DirichletCondition(     variable=velocityField, 
-                                              indexSetsPerDof=(stationaryNode, JWalls) )
+                                              indexSetsPerDof=(None, JWalls) )
 
 # also set dirichlet for temp field
 dirichTempBC = uw.conditions.DirichletCondition(     variable=temperatureField, 
@@ -975,7 +971,7 @@ figDb.append( glucifer.objects.Points(gSwarm,viscVariable, logScale=True, colour
 #figDb.append( glucifer.objects.Surface(mesh, meshVisc, logScale=True, colours='brown white blue') )
 
 figDb.append( glucifer.objects.Points(gSwarm,materialVariable, colours='brown white blue red'))
-#figDb.append( glucifer.objects.Mesh(mesh))
+figDb.append( glucifer.objects.Mesh(mesh))
 figDb.append( glucifer.objects.VectorArrows(mesh,velocityField, arrowHead=0.2, scaling=0.00001))
 figDb.append( glucifer.objects.Surface(mesh, strainRate_2ndInvariant, logScale=True, colours='brown white blue'))
 #figDb.append( glucifer.objects.Surface(mesh, temperatureField))
