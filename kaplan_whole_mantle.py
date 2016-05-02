@@ -973,11 +973,11 @@ projectorStrainRate.solve()
 #pyplot.colorbar()
 
 
-# In[387]:
+# In[409]:
 
 #Pack some stuff into a database as well
 figDb = glucifer.Figure()
-figDb.append( glucifer.objects.Points(gSwarm,viscVariable, logScale=True, colours='brown white blue'))
+#figDb.append( glucifer.objects.Points(gSwarm,viscVariable, logScale=True, colours='brown white blue'))
 figDb.append( glucifer.objects.Surface(mesh, meshVisc, logScale=True, colours='brown white blue') )
 
 figDb.append( glucifer.objects.Points(gSwarm,materialVariable, colours='brown white blue red'))
