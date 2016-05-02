@@ -337,11 +337,11 @@ lith= boundary_layer2d.LithosphereTemps(mesh, temperatureField, dp.LS, subzone ,
 
 # In[351]:
 
-import matplotlib.pyplot as pyplot
-get_ipython().magic(u'matplotlib inline')
-xs = np.linspace(MINX, MAXX, 100)
-ages = [lith.agefunc(x) for x in xs]
-pyplot.plot(xs, ages)
+#import matplotlib.pyplot as pyplot
+#%matplotlib inline
+#xs = np.linspace(MINX, MAXX, 100)
+#ages = [lith.agefunc(x) for x in xs]
+#pyplot.plot(xs, ages)
 
 
 # In[352]:
