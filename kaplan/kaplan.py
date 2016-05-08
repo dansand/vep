@@ -874,6 +874,28 @@ while realtime < 0.2:
     if step % swarm_repop == 0:
         pics.repopulate()
     print(temperatureField.data.max())
+    
+    ################
+    #Particle update
+    ###############
+    particledepths = 1. - gSwarm.particleCoordinates.data[:,1]
+    particletemps = temperatureField.evaluate(gSwarm)[:,0]
+    conditionmap['depthcondition']['data'] = particledepths
+    conditionmap['avgtempcondition']['data'] = particletemps
+    if step % swarm_update == 0:
+        number_updated = 0
+        for particleID in range(gSwarm.particleCoordinates.data.shape[0]):
+            check = update_swarm(DG, particleID)
+            if check > -1:
+                number_updated += 1
+                #if check == 0:
+                #    print "from " + str(materialVariable.data[particleID]) + " to " + str(check)
+                materialVariable.data[particleID] = check
+            else:
+                pass
+        #update the particle location swarm ready for next comparison
+        print "number of particles updated: " + str(number_updated)
+        #print(earthtimeMy, incr, incr_count)
 
 
 # In[122]:
