@@ -3,7 +3,7 @@
 
 # ## From Kaplan 
 
-# In[1]:
+# In[9]:
 
 import networkx as nx
 import underworld as uw
@@ -29,7 +29,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
 
-# In[2]:
+# In[10]:
 
 ############
 #Model name.  
@@ -45,7 +45,7 @@ else:
     ModIt = str(sys.argv[1])
 
 
-# In[3]:
+# In[11]:
 
 ###########
 #Standard output directory setup
@@ -75,7 +75,7 @@ if uw.rank()==0:
 comm.Barrier() #Barrier here so no procs run the check in the next cell too early 
 
 
-# In[4]:
+# In[12]:
 
 ###########
 #Check if starting from checkpoint
@@ -93,7 +93,7 @@ for dirpath, dirnames, files in os.walk(checkpointPath):
         
 
 
-# In[5]:
+# In[13]:
 
 ###########
 #Physical parameters
@@ -134,14 +134,15 @@ ndp = edict({'RA':(dp.g*dp.rho*dp.a*dp.deltaT *(dp.LS)**3)/(dp.k*dp.eta0),
             'G':dp.G*sf.stress})
 
 
-# In[6]:
+# In[14]:
 
-origRA = ndp.RA 
-ndp.RA  = 5e8
-ndp.cohesion = ndp.cohesion*(ndp.RA/origRA)
+#origRA = ndp.RA 
+#ndp.RA  = 5e8
+#ndp.cohesion = ndp.cohesion*(ndp.RA/origRA)
+#ndp.RA 
 
 
-# In[7]:
+# In[15]:
 
 ETAREF = dp.rho*dp.g*dp.a*dp.deltaT*((dp.LS)**3)/(ndp.RA*dp.k) #equivalent dimensional reference viscosity
 #RC = (3300.*dp.g*(dp.LS)**3)/(ETAREF *dp.k) #Composisitional Rayleigh number for rock-air buoyancy force
@@ -154,7 +155,7 @@ COMP_RA_FACT_AIR = RCA/ndp.RA
 ndp["StA_RA"] = ndp.RA*COMP_RA_FACT_AIR
 
 
-# In[8]:
+# In[16]:
 
 #A few parameters defining lengths scales, affects materal transistions etc.
 MANTLETOCRUST = (20.*1e3)/dp.LS #Crust depth
@@ -166,7 +167,7 @@ CRUSTTOECL  = (100.*1e3)/dp.LS
 AVGTEMP = ndp.TB #Used to define lithosphere
 
 
-# In[9]:
+# In[17]:
 
 ###########
 #Boundary layer / slab paramaters
@@ -186,12 +187,12 @@ Crust = 35.
 theta = 89.
 
 
-# In[10]:
+# In[18]:
 
 vel
 
 
-# In[11]:
+# In[19]:
 
 ###########
 #Model setup parameters
@@ -217,7 +218,7 @@ dim = 2          # number of spatial dimensions
 
 #MESH STUFF
 
-RES = 128
+RES = 64
 
 
 Xres = int(RES*4)
@@ -244,7 +245,7 @@ PIC_integration=True
 ppc = 25
 
 
-# In[12]:
+# In[20]:
 
 ###########
 #Model Runtime parameters
@@ -266,7 +267,7 @@ assert metric_output <= checkpoint_every, 'Checkpointing should run less or as o
 #assert metric_output >= sticky_air_temp, 'Sticky air temp should be updated more frequently that metrics'
 
 
-# In[13]:
+# In[21]:
 
 mesh = uw.mesh.FeMesh_Cartesian( elementType = elementType,
                                  elementRes  = (Xres, Yres), 
@@ -281,7 +282,7 @@ temperatureField    = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 temperatureDotField = uw.mesh.MeshVariable( mesh=mesh,         nodeDofCount=1 )
 
 
-# In[14]:
+# In[22]:
 
 # Initialise data.. Note that we are also setting boundary conditions here
 velocityField.data[:] = [0.,0.]
@@ -290,23 +291,23 @@ temperatureField.data[:] = 0.
 temperatureDotField.data[:] = 0.
 
 
-# In[15]:
+# In[23]:
 
 ndp.TS
 
 
-# In[16]:
+# In[24]:
 
 lith= boundary_layer2d.LithosphereTemps(mesh, temperatureField, dp.LS, MINX, mor, tint=ndp.TB, tsurf=ndp.TS, vel= 10e3, diffs = 1e-6)
 
 
-# In[17]:
+# In[25]:
 
 coords = [(MINX, 1.), (subzone, 1.), (MINX, 0.)]
 Tri = fn.shape.Polygon(np.array(coords))
 
 
-# In[18]:
+# In[26]:
 
 for index, coord in enumerate(mesh.data):
     xloc = coord[0]
@@ -323,7 +324,7 @@ for index, coord in enumerate(mesh.data):
         temperatureField.data[index] = lith.tint
 
 
-# In[19]:
+# In[27]:
 
 figTemp = glucifer.Figure()
 figTemp.append( glucifer.objects.Surface(mesh, temperatureField))
@@ -332,7 +333,7 @@ figTemp.append( glucifer.objects.Surface(mesh, temperatureField))
 figTemp.show()
 
 
-# In[20]:
+# In[28]:
 
 # send boundary condition information to underworld
 IWalls = mesh.specialSets["MinI_VertexSet"] + mesh.specialSets["MaxI_VertexSet"]
@@ -346,7 +347,7 @@ BWalls = mesh.specialSets["MinJ_VertexSet"]
 
 
 
-# In[21]:
+# In[29]:
 
 #Set Dirichlet Temp conditions
 
@@ -370,7 +371,7 @@ dirichTempBC = uw.conditions.DirichletCondition(     variable=temperatureField,
 
 # # Particles
 
-# In[22]:
+# In[30]:
 
 ###########
 #Material Swarm and variables
@@ -380,7 +381,7 @@ gSwarm = uw.swarm.Swarm(mesh=mesh)
 materialVariable = gSwarm.add_variable( dataType="int", count=1 )
 
 
-# In[23]:
+# In[31]:
 
 mantleIndex = 0
 lithosphereIndex = 1
@@ -428,7 +429,7 @@ else:
 
 # # Material Graphs
 
-# In[24]:
+# In[32]:
 
 ##############
 #Important: This is a quick fix for a bug that arises in parallel runs
@@ -436,7 +437,7 @@ else:
 material_list = [0,1,2,3,4,5]
 
 
-# In[25]:
+# In[33]:
 
 #All depth conditions are given as (km/D) where D is the length scale,
 #note that 'model depths' are used, e.g. 1-z, where z is the vertical Underworld coordinate
@@ -491,7 +492,7 @@ DG.add_edges_from([(3,2)])
 DG[3][2]['depthcondition'] =CRUSTTOECL
 
 
-# In[26]:
+# In[34]:
 
 remove_nodes = []
 for node in DG.nodes():
@@ -502,7 +503,7 @@ for rmnode in remove_nodes:
     DG.remove_node(rmnode)
 
 
-# In[27]:
+# In[35]:
 
 #A Dictionary to map strings in the graph (e.g. 'depthcondition') to particle data arrays
 
@@ -517,7 +518,7 @@ conditionmap['avgtempcondition'] = {}
 conditionmap['avgtempcondition']['data'] = particletemps
 
 
-# In[28]:
+# In[36]:
 
 def update_swarm(graph, particleIndex):
     """
@@ -566,7 +567,7 @@ def update_swarm(graph, particleIndex):
         return innerchange
 
 
-# In[29]:
+# In[37]:
 
 #Set the crust material in the slab using shapes/function from uw.
 
@@ -584,7 +585,7 @@ if not checkpointLoad:
             materialVariable.data[particleID] =  crustIndex
 
 
-# In[30]:
+# In[38]:
 
 #Cleanse the swarm of its sins
 #For some Material Graphs, the graph may have to be traversed more than once
@@ -601,7 +602,7 @@ while number_updated != 0:
             materialVariable.data[particleID] = check
 
 
-# In[31]:
+# In[39]:
 
 figMat = glucifer.Figure()
 figMat.append( glucifer.objects.Points(gSwarm,materialVariable, colours='white blue red black'))
@@ -612,7 +613,7 @@ figMat.show()
 
 # ## Rheology
 
-# In[32]:
+# In[40]:
 
 # The yeilding of the upper slab is dependent on the strain rate.
 strainRate_2ndInvariant = fn.tensor.second_invariant( 
@@ -683,9 +684,9 @@ ndp.up_visc
 viscosityMapFn = fn.branching.map( fn_key = materialVariable,
                          mapping = {airIndex:ndp.StAeta0, 
                                     lithosphereIndex:mantleviscosityFn, 
-                                    crustIndex:mantleviscosityFn,
+                                    crustIndex:crustviscosityFn,
                                     mantleIndex:mantleviscosityFn, 
-                                    eclIndex:mantleviscosityFn,
+                                    eclIndex:crustviscosityFn,
                                     tempIndex:mantleviscosityFn} )
 
 densityMapFn = fn.branching.map( fn_key = materialVariable,
